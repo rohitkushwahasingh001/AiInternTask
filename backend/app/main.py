@@ -1,39 +1,36 @@
 # backend/app/main.py
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware # Import CORSMiddleware
 from app.api.routes import router as api_router
-from app.core.config import settings
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def create_app():
-    app = FastAPI(
-        title=settings.PROJECT_NAME,
-        version=settings.API_VERSION,
-        description=settings.PROJECT_DESCRIPTION,
-    )
+app = FastAPI(
+    title="Chatbot Theme Identifier API",
+    description="API for document upload, query, and theme identification.",
+    version="1.0.0",
+)
 
-    # Set up CORS middleware
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Adjust this to specific origins in production, e.g., ["http://localhost:8001"]
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+# CORS Middleware (Yeh section add ya update kar)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # <--- Development ke liye "*" rakhte hain, production mein specific Vercel URL dena hota hai
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (POST, GET, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
-    # Include API router
-    app.include_router(api_router, prefix="/api")
+app.include_router(api_router, prefix="/api")
 
-    @app.get("/")
-    async def root():
-        return {"message": "Welcome to Wasserstoff AI Document Chatbot API!"}
+@app.get("/")
+async def read_root():
+    """
+    Root endpoint for the API.
+    """
+    logger.info("Root endpoint accessed.")
+    return {"message": "Welcome to the Chatbot Theme Identifier API!"}
 
-    return app
-
-app = create_app()
-
+# Baaki ke app-level configurations agar kuch hain toh yahan add kar sakte ho.
