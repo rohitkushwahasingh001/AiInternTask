@@ -21,7 +21,7 @@ class ChatService:
     MAX_THEME_TEXT_LENGTH = 10000
 
     def __init__(self, gemini_api_key: str):
-        # FIX: Changed model from "gemini-pro" to "gemini-1.5-flash"
+       
         self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=gemini_api_key, temperature=0)
         logger.info("ChatService initialized with Google Gemini 1.5 Flash LLM.")
 
@@ -67,7 +67,7 @@ class ChatService:
             | StrOutputParser()
         )
         
-        # FIX: Changed chain.invoke to chain.ainvoke for asynchronous execution
+      
         synthesized_response = await chain.ainvoke({"context": context_string, "query": query})
         logger.info(f"LLM generated response for query: {query}")
 
