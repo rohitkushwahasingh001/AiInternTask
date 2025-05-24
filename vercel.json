@@ -13,7 +13,7 @@
     },
     {
       "src": "frontend/**",
-      "use": "@vercel/static",  // <--- Changed from "@vercel/static-build"
+      "use": "@vercel/static",  
       "config": {
         "distDir": "frontend"
       }
