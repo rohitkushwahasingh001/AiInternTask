@@ -27,7 +27,7 @@ def get_document_processor() -> DocumentProcessor:
     """Provides the DocumentProcessor instance."""
     return DocumentProcessor(upload_dir=settings.UPLOAD_DIR)
 
-# FIX: Ensure vector_db_service is NOT passed to ChatService.__init__
+#
 def get_chat_service() -> ChatService:
     """Provides the ChatService instance."""
     # ChatService now only takes gemini_api_key in its constructor
