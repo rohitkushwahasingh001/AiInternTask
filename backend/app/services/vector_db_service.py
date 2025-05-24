@@ -95,9 +95,9 @@ class VectorDBService:
         Returns a list of dictionaries, each with 'document_id' and 'filename'.
         """
         try:
-            # FIX: Use limit instead of empty where clause to fetch all documents
+         
             # A large limit is used to ensure all documents are fetched.
-            # Adjust this limit if you expect more than 100,000 chunks.
+        
             all_chunks_data = self.collection.get(
                 limit=100000, # Fetch up to 100,000 chunks
                 include=['metadatas']
@@ -128,7 +128,6 @@ class VectorDBService:
         This effectively clears the knowledge base.
         """
         try:
-            # Recreate the collection to effectively clear it
             self.client.delete_collection(name=self.collection_name)
             self._get_or_create_collection() # Recreate empty collection
             logger.info(f"ChromaDB collection '{self.collection_name}' cleared.")
