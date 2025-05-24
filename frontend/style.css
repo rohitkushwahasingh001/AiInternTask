@@ -1,0 +1,231 @@
+/* frontend/style.css */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0b1015; /* Dark background */
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    color: #ecf0f1; /* Light text for dark background */
+}
+
+.container {
+    background-color: #34495e; /* Darker container background */
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Darker shadow */
+    padding: 30px;
+    width: 100%;
+    max-width: 900px;
+    box-sizing: border-box;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #ecf0f1; /* Light heading color */
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.section {
+    background-color: #3e526a; /* Darker section background */
+    border: 1px solid #556b82; /* Darker border */
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #ecf0f1; /* Light heading color */
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 600;
+    border-bottom: 2px solid #556b82; /* Darker border */
+    padding-bottom: 10px;
+}
+
+h3 {
+    color: #ecf0f1; /* Light sub-heading color */
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+input[type="file"],
+input[type="text"],
+button {
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 1px solid #667e95; /* Darker input border */
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    background-color: #4a627a; /* Darker input background */
+    color: #ecf0f1; /* Light text */
+}
+
+input[type="file"] {
+    display: block;
+    width: calc(100% - 20px);
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+input[type="text"] {
+    width: calc(100% - 120px); /* Adjust width for button */
+    margin-right: 10px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #5fa2dd; /* Darker blue button */
+    color: white;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+    background-color: #4a8ac2; /* Darker blue hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#uploadBtn {
+    background-color: #48b77a; /* Darker green upload button */
+}
+#uploadBtn:hover {
+    background-color: #3a9665; /* Darker green upload hover */
+}
+
+.chat-input-area {
+    display: flex;
+    margin-top: 15px;
+}
+
+#sendQueryBtn {
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.status-message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #ecf0f1; /* Light text */
+    background-color: #3c763d; /* Darker success background */
+    border: 1px solid #3c763d; /* Darker success border */
+    display: none; /* Hidden by default */
+}
+
+.status-message.success {
+    background-color: #3c763d;
+    color: #dff0d8; /* Lighter success text */
+    border-color: #3c763d;
+}
+
+.status-message.error {
+    background-color: #a94442; /* Darker error background */
+    color: #f2dede; /* Lighter error text */
+    border-color: #a94442;
+}
+
+.chat-area {
+    border: 1px solid #556b82; /* Darker border */
+    border-radius: 10px;
+    padding: 15px;
+    height: 350px;
+    overflow-y: auto;
+    background-color: #34495e; /* Darker chat area background */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chat-message {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.user-message {
+    align-self: flex-end;
+    background-color: #5cb85c; /* Darker user message background */
+    color: #ecf0f1; /* Light text */
+    border-bottom-right-radius: 2px;
+}
+
+.bot-message {
+    align-self: flex-start;
+    background-color: #55708a; /* Darker bot message background */
+    color: #ecf0f1; /* Light text */
+    border-bottom-left-radius: 2px;
+}
+
+.chat-message p {
+    margin: 0;
+}
+
+/* Citations in chat bubble */
+.citation {
+    font-size: 0.85em;
+    color: #bdc3c7; /* Lighter grey for citations */
+    margin-top: 5px;
+    display: block;
+}
+
+.document-list ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.document-list li {
+    background-color: #4a627a; /* Darker doc list item background */
+    border: 1px solid #5e748c; /* Darker doc list item border */
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #ecf0f1; /* Light text */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.document-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* Removed themes-result-section, themes-result, document-responses-section, table-container, etc. */
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    input[type="text"] {
+        width: calc(100% - 100px);
+    }
+
+    #uploadBtn {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
