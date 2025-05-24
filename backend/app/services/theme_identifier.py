@@ -26,8 +26,7 @@ class ThemeIdentifierService:
 
         try:
             # Fetch all documents (chunks) from the vector store
-            # Note: This might be memory intensive for a very large number of documents.
-            # For 75+ documents, consider fetching in batches if memory becomes an issue.
+       
             all_documents = self.vector_store.get(where={})['documents']
 
             if not all_documents:
