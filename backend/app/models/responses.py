@@ -24,9 +24,9 @@ class Citation(BaseModel):
 
 class QueryResponse(BaseModel):
     synthesized_response: str
-    tabular_citations: List[Citation] # Keeping this name for consistency with previous use
+    tabular_citations: List[Citation] 
 
-class Theme(BaseModel): # New Model for a single theme
+class Theme(BaseModel): 
     theme_name: str
     description: str
     documents: List[str] # List of document IDs relevant to this theme
