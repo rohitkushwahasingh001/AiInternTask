@@ -1,204 +1,166 @@
-// frontend/script.js
-// --- Configuration ---
-// For local testing, this will be "http://localhost:8000"
-const BACKEND_URL = "http://localhost:8000";
-
-// --- DOM Elements ---
-const documentUpload = document.getElementById('documentUpload');
-const uploadBtn = document.getElementById('uploadBtn');
-const uploadStatus = document.getElementById('uploadStatus');
-const docsList = document.getElementById('docsList');
-
-const chatArea = document.getElementById('chatArea');
-const queryInput = document.getElementById('queryInput');
-const sendQueryBtn = document.getElementById('sendQueryBtn');
-const queryStatus = document.getElementById('queryStatus');
-
-// Elements related to themes, table, clear data, and modal are intentionally removed for basic UI
-// const clearDataBtn = document.getElementById('clearDataBtn');
-// const clearDataStatus = document.getElementById('clearDataStatus');
-// const identifyThemesBtn = document.getElementById('identifyThemesBtn');
-// const themesStatus = document.getElementById('themesStatus');
-// const themesResult = document.getElementById('themesResult');
-// const documentResponsesTableContainer = document.getElementById('documentResponsesTableContainer');
-// const noRelevantSnippets = document.getElementById('noRelevantSnippets');
-// const noThemesFound = document.getElementById('noThemesFound');
-// const themeToggle = document.getElementById('themeToggle');
-// const openUploadModalBtn = document.getElementById('openUploadModalBtn');
-// const uploadModal = document.getElementById('uploadModal');
-// const closeUploadModalBtn = document.getElementById('closeUploadModalBtn');
-// const uploadStatusModal = document.getElementById('uploadStatusModal');
 
 
-// --- Helper Functions ---
-
-/**
- * Displays a message in a status div.
- * @param {HTMLElement} element - The status message div element.
- * @param {string} message - The message to display.
- * @param {string} type - 'success' or 'error' for styling.
- */
-function showStatus(element, message, type) {
-    element.textContent = message;
-    element.className = `status-message ${type}`;
-    element.style.display = 'block';
-    setTimeout(() => {
-        element.style.display = 'none';
-    }, 5000); // Hide after 5 seconds
-}
-
-/**
- * Adds a chat message to the chat area.
- * @param {string} message - The text content of the message.
- * @param {string} sender - 'user' or 'bot'.
- * @param {Array} [citations=[]] - Optional array of citation objects for bot messages.
- */
-function addChatMessage(message, sender, citations = []) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('chat-message', `${sender}-message`);
-    
-    const messageParagraph = document.createElement('p');
-    messageParagraph.textContent = message;
-    messageDiv.appendChild(messageParagraph);
-
-    // Keeping inline citations in chat bubble for basic UI
-    if (sender === 'bot' && citations.length > 0) {
-        const citationList = document.createElement('ul');
-        citationList.classList.add('citation-list');
-        const uniqueCitations = new Set(); 
-
-        citations.forEach(citation => {
-            const citationKey = `${citation.document_id}-${citation.page}-${citation.paragraph}`;
-            if (!uniqueCitations.has(citationKey)) {
-                const citationItem = document.createElement('li');
-                citationItem.classList.add('citation');
-                citationItem.textContent = `(DOC_ID: ${citation.document_id}, File: ${citation.filename}, Page: ${citation.page}, Para: ${citation.paragraph})`;
-                citationList.appendChild(citationItem);
-                uniqueCitations.add(citationKey);
-            }
-        });
-        if (citationList.children.length > 0) {
-            messageDiv.appendChild(citationList);
-        }
-    }
-    chatArea.appendChild(messageDiv);
-    chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
-}
-
-/**
- * Fetches and displays the list of uploaded documents.
- */
-async function fetchAndDisplayDocuments() {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/documents/`);
-        const data = await response.json();
-
-        docsList.innerHTML = ''; // Clear existing list
-        if (data.documents && data.documents.length > 0) {
-            data.documents.forEach(doc => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `ID: ${doc.document_id} - ${doc.filename}`;
-                docsList.appendChild(listItem);
-            });
-        } else {
-            const listItem = document.createElement('li');
-            listItem.textContent = 'No documents uploaded yet.';
-            docsList.appendChild(listItem);
-        }
-    } catch (error) {
-        console.error('Error fetching documents:', error);
-        showStatus(uploadStatus, 'Failed to load document list.', 'error');
-    }
-}
-
-
-// --- Event Listeners ---
-
-// Document Upload
-uploadBtn.addEventListener('click', async () => {
-    const files = documentUpload.files;
-    if (files.length === 0) {
-        showStatus(uploadStatus, 'Please select at least one file to upload.', 'error');
-        return;
-    }
-
-    showStatus(uploadStatus, 'Uploading and processing documents...', '');
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
-    }
-
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/upload-documents/`, {
-            method: 'POST',
-            body: formData,
-        });
-        const result = await response.json();
-
-        if (response.ok) {
-            showStatus(uploadStatus, 'Documents uploaded and processed successfully!', 'success');
-            documentUpload.value = ''; // Clear the input field
-            fetchAndDisplayDocuments(); // Refresh the list of uploaded documents
-        } else {
-            showStatus(uploadStatus, `Upload failed: ${result.detail || result.message || 'Unknown error'}`, 'error');
-        }
-    } catch (error) {
-        console.error('Error during document upload:', error);
-        showStatus(uploadStatus, `Network error or server unreachable: ${error.message}`, 'error');
-    }
-});
-
-// Send Query
-sendQueryBtn.addEventListener('click', async () => {
-    const query = queryInput.value.trim();
-    if (query === '') {
-        showStatus(queryStatus, 'Please enter a query.', 'error');
-        return;
-    }
-
-    addChatMessage(query, 'user');
-    queryInput.value = ''; // Clear input field
-
-    showStatus(queryStatus, 'Getting response...', '');
-
-    const formData = new FormData();
-    formData.append('query_text', query);
-
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/query/`, {
-            method: 'POST',
-            body: formData,
-        });
-        const result = await response.json();
-
-        if (response.ok) {
-            // Display the concise synthesized response in chat area
-            addChatMessage(result.synthesized_response, 'bot', result.tabular_citations); // Keep citations in chat bubble for basic UI
-
-            showStatus(queryStatus, 'Response received.', 'success');
-        } else {
-            addChatMessage(`Error: ${result.detail || result.message || 'Unknown error'}`, 'bot');
-            showStatus(queryStatus, `Query failed: ${result.detail || result.message || 'Unknown error'}`, 'error');
-        }
-    } catch (error) {
-        console.error('Error during query:', error);
-        addChatMessage(`Error: Network error or server unreachable.`, 'bot');
-        showStatus(queryStatus, `Network error or server unreachable: ${error.message}`, 'error');
-    }
-});
-
-// Allow sending query with Enter key
-queryInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-        sendQueryBtn.click();
-    }
-});
-
-// Removed theme toggle button and its event listener
-// Removed clear data button and its event listener
-// Removed modal open/close listeners
-
-// --- Initial Load ---
 document.addEventListener('DOMContentLoaded', () => {
-    fetchAndDisplayDocuments(); // Load documents on page load
+    const uploadForm = document.getElementById('upload-form');
+    const queryForm = document.getElementById('query-form');
+    const uploadedDocumentsList = document.getElementById('uploaded-documents-list');
+    const chatContainer = document.getElementById('chat-container');
+    const spinner = document.getElementById('spinner');
+
+    // Function to show/hide spinner
+    function setLoading(isLoading) {
+        if (isLoading) {
+            spinner.style.display = 'block';
+        } else {
+            spinner.style.display = 'none';
+        }
+    }
+
+    // Function to add a message to the chat display
+    function addMessageToChat(sender, message, isHtml = false, citations = []) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'bot-message');
+
+        if (isHtml) {
+            messageElement.innerHTML = message;
+        } else {
+            messageElement.textContent = message;
+        }
+
+        if (citations.length > 0) {
+            const citationsContainer = document.createElement('div');
+            citationsContainer.classList.add('citations-container');
+            citationsContainer.innerHTML = '<strong>Citations:</strong>';
+            citations.forEach(citation => {
+                const citationElement = document.createElement('span');
+                citationElement.classList.add('citation-tag');
+                citationElement.textContent = `(ID: ${citation.document_id}, File: ${citation.filename}, Page: ${citation.page}, Para: ${citation.paragraph})`;
+                citationsContainer.appendChild(citationElement);
+            });
+            messageElement.appendChild(citationsContainer);
+        }
+
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to bottom
+    }
+
+    // Function to fetch and display uploaded documents
+    async function fetchUploadedDocuments() {
+        try {
+            setLoading(true);
+            const response = await fetch('/api/list-documents/');
+            if (!response.ok) {
+                throw new Error(`Server responded with status ${response.status}`);
+            }
+            const documents = await response.json();
+            uploadedDocumentsList.innerHTML = ''; // Clear existing list
+
+            if (documents.length === 0) {
+                uploadedDocumentsList.innerHTML = '<li>No documents uploaded yet.</li>';
+            } else {
+                documents.forEach(doc => {
+                    const li = document.createElement('li');
+                    li.textContent = `ID: ${doc.document_id}, Filename: ${doc.filename}, Chunks: ${doc.num_chunks}`;
+                    uploadedDocumentsList.appendChild(li);
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching uploaded documents:', error);
+            uploadedDocumentsList.innerHTML = `<li class="error-message">Error fetching documents: ${error.message}</li>`;
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // Handle document upload and processing
+    uploadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const fileInput = document.getElementById('document-upload');
+        const files = fileInput.files;
+
+        if (files.length === 0) {
+            alert('Please select files to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
+
+        const uploadStatusDiv = document.getElementById('upload-status');
+        uploadStatusDiv.textContent = 'Uploading and processing...';
+        uploadStatusDiv.style.color = 'orange';
+
+        try {
+            setLoading(true); // Show spinner
+            // IMPORTANT: Use relative path /api/upload-documents/
+            const response = await fetch('/api/upload-documents/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Server responded with status ${response.status}: ${errorText}`);
+            }
+
+            const data = await response.json();
+            uploadStatusDiv.textContent = data.message;
+            uploadStatusDiv.style.color = 'green';
+            fileInput.value = ''; // Clear file input
+            fetchUploadedDocuments(); // Refresh the list of uploaded documents
+        } catch (error) {
+            console.error('Error during upload:', error);
+            uploadStatusDiv.textContent = `Upload failed: ${error.message}`;
+            uploadStatusDiv.style.color = 'red';
+            alert('Network error or server unreachable: Failed to fetch. Check console for details.');
+        } finally {
+            setLoading(false); // Hide spinner
+        }
+    });
+
+    // Handle user query
+    queryForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const queryInput = document.getElementById('query-input');
+        const query = queryInput.value.trim();
+
+        if (!query) {
+            alert('Please enter a query.');
+            return;
+        }
+
+        addMessageToChat('user', query); // Add user's query to chat
+        queryInput.value = ''; // Clear query input
+
+        try {
+            setLoading(true); // Show spinner
+            // IMPORTANT: Use relative path /api/query-documents/
+            const response = await fetch('/api/query-documents/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Server responded with status ${response.status}: ${errorText}`);
+            }
+
+            const data = await response.json();
+            addMessageToChat('bot', data.synthesized_response, false, data.tabular_citations); // Add bot's response
+        } catch (error) {
+            console.error('Error during query:', error);
+            addMessageToChat('bot', 'Failed to get response. Please try again later.');
+            alert('Failed to get response. Check console for details.');
+        } finally {
+            setLoading(false); // Hide spinner
+        }
+    });
+
+    // Initial fetch of documents when the page loads
+    fetchUploadedDocuments();
 });
