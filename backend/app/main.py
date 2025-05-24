@@ -1,6 +1,7 @@
 # backend/app/main.py
+
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware 
 from app.api.routes import router as api_router
 import logging
 
@@ -13,13 +14,15 @@ app = FastAPI(
     version="1.0.0",
 )
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins for development/testing
+    allow_origins=["*"],  # Allows all origins, including your Render frontend
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allows all HTTP methods (POST, GET, etc.)
+    allow_headers=["*"],  # Allows all headers
 )
+# -----------------------------------------------------------------------------
 
 app.include_router(api_router, prefix="/api")
 
