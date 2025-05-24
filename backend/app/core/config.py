@@ -9,8 +9,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     # This will load environment variables from a .env file located at the project root
-    # or specified path.
-    # It also sets default values if environment variables are not found.
+   
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
 
     PROJECT_NAME: str = "THeme AI Document Chatbot"
