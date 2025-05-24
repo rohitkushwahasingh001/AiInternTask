@@ -1,1 +1,28 @@
+    # render.yaml
+    # This file defines how your services are built and deployed on Render.com
 
+    services:
+      - type: web # Defines your FastAPI backend service
+        name: chatbot-backend # A unique name for your backend service
+        rootDir: backend # The root directory for this service within your repo
+        env: python # The runtime environment
+        buildCommand: | # Commands to run during the build process
+          pip install -r requirements.txt
+          apt-get update -y
+          apt-get install -y tesseract-ocr libsm6 libxext6 libxrender-dev poppler-utils # Install Tesseract and Poppler
+        startCommand: gunicorn app.main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker # Command to start your FastAPI app
+        envVars:
+          - key: GEMINI_API_KEY # Your Google Gemini API Key
+            sync: false # Set to true if you want to sync from Render dashboard
+          # Agar koi aur environment variable hai toh yahan add kar sakte ho
+          # - key: ANOTHER_ENV_VAR
+          #   value: "some_value"
+        autoDeploy: true # Automatically deploy on every push to GitHub
+
+      - type: static # Defines your static frontend site
+        name: chatbot-frontend # A unique name for your frontend site
+        rootDir: frontend # The root directory for your frontend files
+        buildCommand: echo "No build command for static HTML/CSS/JS" # No build command needed for static files
+        publishPath: . # Serve files directly from the root of the frontend directory
+        autoDeploy: true # Automatically deploy on every push to GitHub
+    
