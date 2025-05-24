@@ -1,3 +1,5 @@
+
+
 {
   "version": 2,
   "builds": [
@@ -11,7 +13,7 @@
     },
     {
       "src": "frontend/**",
-      "use": "@vercel/static-build",
+      "use": "@vercel/static",  // <--- Changed from "@vercel/static-build"
       "config": {
         "distDir": "frontend"
       }
